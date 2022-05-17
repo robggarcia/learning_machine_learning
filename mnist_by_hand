@@ -1,0 +1,53 @@
+# This is an example of using tensorflow to detect hand written digits using the mnist dataset
+
+import tensorflow as tf
+
+mnist = tf.keras.datasets.mnist # 28x28 images of hand-written digits 0 - 9
+
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+
+# normalize the data
+x_train = tf.keras.utils.normalize(x_train, axis=1)
+x_test = tf.keras.utils.normalize(x_test, axis=1)
+
+# build the model
+model = tf.keras.models.Sequential()
+model.add(tf.keras.layers.Flatten())
+model.add(tf.keras.layers.Dense(128, activation=tf.nn.relu))
+model.add(tf.keras.layers.Dense(128, activation=tf.nn.relu))
+model.add(tf.keras.layers.Dense(10, activation=tf.nn.softmax))
+
+# enter parameters for the training of the model
+model.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+
+#train the model
+model.fit(x_train, y_train, epochs=3)
+
+# calculate the validation loss and accuracy
+val_loss, val_acc = model.evaluate(x_test, y_test)
+print(val_loss, val_acc)
+
+import matplotlib.pyplot as plt
+
+plt.imshow(x_train[0], cmap = plt.cm.binary)
+
+# save the model
+model.save('example_num_reader.model')
+
+# load a previously saved model
+new_model = tf.keras.models.load_model('example_num_reader.model')
+
+# make a prediction
+predictions = new_model.predict([x_test])
+
+print(predictions)
+
+# view the results of the prediction 
+import numpy as np
+
+print(np.argmax(predictions[0]))
+
+plt.imshow(x_test[0])
+plt.show
